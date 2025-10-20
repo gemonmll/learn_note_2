@@ -1,0 +1,28 @@
+services:
+
+  roscore:
+    image: ros:noetic
+    command: roscore
+    environment:
+      - ROS_HOSTNAME=roscore
+
+  rviz:
+    image: my-ros-image:v2-gpu  # <-- 使用我们已有的 v2 镜像
+    command: >
+      bash -c "sleep 3 &&
+               source /opt/ros/noetic/setup.bash && 
+               rviz"
+    depends_on:
+      - roscore
+    environment:
+      - DISPLAY
+      - ROS_MASTER_URI=http://roscore:11311
+      - __GLX_VENDOR_LIBRARY_NAME=nvidia  # <-- 1. 添加这块“拼图”
+    
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      
+    devices:
+      - /dev/nvidia0:/dev/nvidia0
+      - /dev/nvidiactl:/dev/nvidiactl
+      - /dev/nvidia-uvm:/dev/nvidia-uvm
