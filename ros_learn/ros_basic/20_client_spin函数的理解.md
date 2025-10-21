@@ -170,3 +170,102 @@ auto result = result_future.get();  // ✅ 现在可以返回结果
 
 如果你想，我可以再帮你画一张 **“ROS2 Client-Service 通信完整时序图”**（包含 spin 作用点和 future 状态变化），能让你彻底看懂整个数据流。
 要我画吗？
+
+---
+代码理解
+---
+非常棒 👍，你理解得已经非常接近正确了，我们来把这一段彻底讲清楚。
+
+---
+
+## ✅ 结论先说：
+
+是的，你说得对：
+
+> 在这段代码中，
+> `rclcpp::spin_until_future_complete()` **会阻塞等待 future 完成**；
+> 一旦它返回 `SUCCESS`，
+> `result_future.get()` **立即就能取到结果（不会再阻塞）**。
+
+---
+
+## 🔍 我们详细拆解这两步：
+
+### 1️⃣ `rclcpp::spin_until_future_complete(node, result_future)`
+
+作用：
+
+* 持续运行 ROS 的事件循环（executor），监听消息；
+* 当对应的 service 响应到达时，executor 调用内部回调；
+* 回调会设置 `promise.set_value(response)`；
+* `result_future` 状态变为 ready；
+* 函数返回 `FutureReturnCode::SUCCESS`；
+* 所以这一步已经把 **future 填好了**。
+
+> 👉 可以理解为 “帮 future 等到了结果”。
+
+如果响应迟迟没来：
+
+* 它会一直 spin（阻塞）；
+* 直到响应来了，或超时/节点关闭。
+
+---
+
+### 2️⃣ `auto result = result_future.get();`
+
+* 因为上一行已经让 future 变为 ready；
+* 所以 `.get()` 不会再阻塞；
+* 它只是 **取出结果对象（response 的指针）**。
+
+> `.get()` 在这里相当于「拿出已经准备好的结果」。
+
+---
+
+## 🧩 所以，这两者的关系是：
+
+| 函数                             | 作用                     | 是否阻塞            | 备注    |
+| ------------------------------ | ---------------------- | --------------- | ----- |
+| `spin_until_future_complete()` | 驱动 ROS executor，直到响应到达 | ✅ 阻塞直到响应        | 负责“等” |
+| `future.get()`                 | 取出结果值                  | ⚡ 不阻塞（此时结果已准备好） | 负责“取” |
+
+---
+
+## 🧠 类比理解：
+
+就像你点了个外卖 🍱：
+
+* `spin_until_future_complete()` = 一直盯着外卖 app，直到骑手送达；
+* `future.get()` = 外卖送到了，伸手去拿餐。
+  （拿的这一瞬间当然不再等待。）
+
+---
+
+## ⚠️ 如果你省略 `spin_until_future_complete`：
+
+```cpp
+auto future = client->async_send_request(request);
+auto result = future.get();  // 🚫 这里会永远卡住
+```
+
+因为：
+
+* 没有 spin；
+* executor 不运行；
+* 网络响应不会被处理；
+* `promise` 永远不会 set；
+* 所以 `.get()` 永远阻塞。
+
+---
+
+## ✅ 总结一句话：
+
+> 在 ROS 2 中，`spin_until_future_complete()` 是等待响应的 **主动阻塞循环**，
+> 让 ROS 有机会处理响应；
+> 一旦返回，`future.get()` 就是 **同步取值，不再等待**。
+
+---
+
+如果你想，我可以帮你画一张简单的流程图：
+展示这段 client 代码在请求 → 等待 → 响应 → 取值 之间的事件顺序。
+是否要我帮你画出来？
+
