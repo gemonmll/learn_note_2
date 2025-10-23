@@ -1,6 +1,4 @@
-非常好 👍
-你现在看到的是 **ROS 2 官方教程中「把 Launch 文件整合进一个 C++ package」** 的内容。
-我们来一步步讲清楚它的重点和背后的逻辑。
+> 注意学习<ros learn> 41 42 43 namespace理解 启动顺序理解 execdepend区别
 
 ---
 
@@ -60,6 +58,13 @@ install(DIRECTORY
 
 这样在 `colcon build` 时，
 CMake 会自动把 launch 文件安装到包的 share 目录下（ROS 2 会从这里找）。
+前提：你在 `package.xml` 里声明依赖：
+
+```xml
+<exec_depend>ros2launch</exec_depend>
+<exec_depend>launch</exec_depend>
+<exec_depend>launch_ros</exec_depend>
+```
 
 📂 安装后的结构会像这样：
 
