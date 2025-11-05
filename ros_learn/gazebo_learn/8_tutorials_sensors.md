@@ -307,7 +307,7 @@ message LaserScan
 }
 ``` :contentReference[oaicite:27]{index=27}  
 其中 `ranges` 数组就是每条激光射线测得的距离。:contentReference[oaicite:28]{index=28}
-
+``````
 随后文档给出了一个简单的 C++ “避障节点”示例代码：
 
 ```cpp
@@ -357,7 +357,7 @@ int main(int argc, char **argv)
 - 若所有激光射线的距离都大于 1.0 m，则机器人继续前进（线速度 0.5，角速度 0.0）；  
 - 否则（发现前方有障碍物且距离 < 1.0 m）则停止前进，原地转动（线速度 0.0，角速度 0.5）以避开障碍。  
 这样结合仿真中的 LiDAR 数据，就能实现简单的避障行为。
-
+``````
 ### 5.4 统一启动（Ignition Launch）  
 为了简化操作，不必分别在两个终端运行世界仿真 + 节点，还可以用一个 launch 文件同时启动，如下：
 
