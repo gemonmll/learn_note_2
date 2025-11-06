@@ -1,0 +1,47 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/root/workspace/build/turtlebot3_teleop",
+        "/root/workspace/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/root/workspace/build/turtlebot3_example",
+        "/root/workspace/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/root/workspace/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/root/workspace/install/dynamixel_sdk_custom_interfaces/local/lib/python3.10/dist-packages",
+        "/root/workspace/install/dynamixel_sdk/local/lib/python3.10/dist-packages",
+        "/root/turtlebot3_ws/build/turtlebot3_teleop",
+        "/root/turtlebot3_ws/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/root/turtlebot3_ws/build/turtlebot3_example",
+        "/root/turtlebot3_ws/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/root/turtlebot3_ws/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/root/turtlebot3_ws/install/dynamixel_sdk_custom_interfaces/local/lib/python3.10/dist-packages",
+        "/root/turtlebot3_ws/install/dynamixel_sdk/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/root/workspace/build/turtlebot3_teleop",
+        "/root/workspace/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/root/workspace/build/turtlebot3_example",
+        "/root/workspace/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/root/workspace/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/root/workspace/install/dynamixel_sdk_custom_interfaces/local/lib/python3.10/dist-packages",
+        "/root/workspace/install/dynamixel_sdk/local/lib/python3.10/dist-packages",
+        "/root/turtlebot3_ws/build/turtlebot3_teleop",
+        "/root/turtlebot3_ws/install/turtlebot3_teleop/lib/python3.10/site-packages",
+        "/root/turtlebot3_ws/build/turtlebot3_example",
+        "/root/turtlebot3_ws/install/turtlebot3_example/lib/python3.10/site-packages",
+        "/root/turtlebot3_ws/install/turtlebot3_msgs/local/lib/python3.10/dist-packages",
+        "/root/turtlebot3_ws/install/dynamixel_sdk_custom_interfaces/local/lib/python3.10/dist-packages",
+        "/root/turtlebot3_ws/install/dynamixel_sdk/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "files.associations": {
+        "memory": "cpp",
+        "chrono": "cpp",
+        "string": "cpp",
+        "cmath": "cpp",
+        "random": "cpp",
+        "vector": "cpp",
+        "regex": "cpp"
+    }
+}

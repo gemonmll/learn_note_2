@@ -1,0 +1,12 @@
+
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "source_ros2_env",
+            "type": "shell",
+            "command": "bash -c 'source /opt/ros/humble/setup.bash && source /root/workspace/install/setup.bash'"
+          }
+    ]
+  }
+  

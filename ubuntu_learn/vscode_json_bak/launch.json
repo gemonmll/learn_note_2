@@ -1,0 +1,173 @@
+// {
+//     "version": "0.2.0",
+//     "configurations": [
+//       {
+//         "name": "ROS2 Debug - minimal_server",
+//         "type": "cppdbg",
+//         "request": "launch",
+//         "program": "/sim_ws/install/pure_pursuit/lib/pure_pursuit/pure_pursuit",
+//         "args": [],
+//         "stopAtEntry": false,
+//         "cwd": "${workspaceFolder}",
+//         "environment": [
+//           {
+//             "name": "AMENT_PREFIX_PATH",
+//             "value": "/opt/ros/foxy:/sim_ws/install"
+//           },
+//           {
+//             "name": "COLCON_PREFIX_PATH",
+//             "value": "/opt/ros/foxy:/sim_ws/install"
+//           },
+//           {
+//             "name": "LD_LIBRARY_PATH",
+//             "value": "/opt/ros/foxy/lib/:/opt/ros/foxy/lib/x86_64-linux-gnu:/sim_ws/install/lib:/sim_ws/install/pure_pursuit/lib"
+//           },
+//           {
+//             "name": "RMW_IMPLEMENTATION",
+//             "value": "rmw_fastrtps_cpp"
+//           }
+//         ],
+//         "externalConsole": false,
+//         "MIMode": "gdb",
+//         "setupCommands": [
+//           {
+//             "description": "Enable pretty-printing for gdb",
+//             "text": "-enable-pretty-printing",
+//             "ignoreFailures": true
+//           }
+
+//         ],
+//         "preLaunchTask": "source_ros2_env"
+//       },
+//     ]
+//   }
+{
+  "version": "0.2.0",
+  "configurations": [
+    // {
+    //   "name": "ROS2 Debug - via Launch File",
+    //   "type": "cppdbg",
+    //   "request": "launch",
+    //   "program": "/opt/ros/foxy/bin/ros2",
+    //   "args": [
+    //     "launch",
+    //     "pure_pursuit",
+    //     "sim_pure_pursuit_launch.py"
+    //   ],
+    //   "stopAtEntry": false,
+    //   "cwd": "${workspaceFolder}",
+    //   "environment": [
+    //     {
+    //       "name": "AMENT_PREFIX_PATH",
+    //       "value": "/opt/ros/foxy:/sim_ws/install"
+    //     },
+    //     {
+    //       "name": "COLCON_PREFIX_PATH",
+    //       "value": "/opt/ros/foxy:/sim_ws/install"
+    //     },
+    //     {
+    //       "name": "LD_LIBRARY_PATH",
+    //       "value": "/opt/ros/foxy/lib/:/opt/ros/foxy/lib/x86_64-linux-gnu:/sim_ws/install/lib:/sim_ws/install/pure_pursuit/lib"
+    //     },
+    //     {
+    //       "name": "RMW_IMPLEMENTATION",
+    //       "value": "rmw_fastrtps_cpp"
+    //     }
+    //   ],
+    //   "externalConsole": true,
+    //   "MIMode": "gdb",
+    //   "setupCommands": [
+    //     {
+    //       "description": "Enable pretty-printing for gdb",
+    //       "text": "-enable-pretty-printing",
+    //       "ignoreFailures": true
+    //     }
+    //   ],
+    //   "preLaunchTask": "source_ros2_env"
+    // },
+    // {
+    //   "name": "Attach to pure_pursuit node (paused under gdb)",
+    //   "type": "cppdbg",
+    //   "request": "attach",
+    //   "program": "/sim_ws/install/pure_pursuit/lib/pure_pursuit/pure_pursuit",
+    //   "processId": "${command:pickProcess}",
+    //   "MIMode": "gdb",
+    //   "miDebuggerPath": "/usr/bin/gdb",
+    //   "setupCommands": [
+    //     {
+    //       "description": "Enable pretty-printing for gdb",
+    //       "text": "-enable-pretty-printing",
+    //       "ignoreFailures": true
+    //     }
+    //   ],
+    //   "cwd": "${workspaceFolder}"
+    // },
+
+    {
+
+      "name": "Attach to gdbserver (ekf_localizer)1",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/home/autoware/install/ekf_localizer/lib/ekf_localizer/ekf_localizer",
+      "miDebuggerServerAddress": "localhost:1234",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "MIMode": "gdb",
+      "cwd": "${workspaceFolder}",
+      "externalConsole": true,
+      "setupCommands": [
+          { "text": "-enable-pretty-printing" },
+          { "text": "set pagination off" },
+          { "text": "break main" }
+      ]
+    },
+    {
+      "name": "Attach to Running Node",
+      "type": "python",
+      "request": "attach",
+      "connect": { "host": "localhost", "port": 5678 },
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "/root/workspace/install/turtlebot3_teleop/lib/python3.10/site-packages"
+      },
+      "pathMappings": [
+        { "localRoot": "${workspaceFolder}", "remoteRoot": "/root/workspace/" }
+      ]
+    },
+    {
+//       pure_pursuit = Node(
+//       package='pure_pursuit',
+//       executable='pure_pursuit',
+//       name='pure_pursuit',
+//       parameters=[config] ,
+// #        prefix = 'gdb --args'
+// #        prefix='xterm -hold -e gdb --args'
+// #        prefix='gdb -ex "break main" -ex run --args'
+//       prefix='xterm -hold -e gdbserver localhost:1234'
+
+// <node pkg="ekf_localizer" type="ekf_localizer" name="ekf_localizer" output="screen" launch-prefix="gdbserver :1234">
+// //   )
+
+      "name": "Attach to gdbserver (ros carto node)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/root/workspace/install/cartographer_ros/lib/cartographer_ros/cartographer_node",
+      "miDebuggerServerAddress": "localhost:1234",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "MIMode": "gdb",
+      "cwd": "${workspaceFolder}",
+      "externalConsole": true,
+      "setupCommands": [
+          { "text": "-enable-pretty-printing" },
+          { "text": "set pagination off" },
+          { "text": "break main" }
+      ]
+    },
+    
+
+  ],
+
+
+  
+}
+
+  
