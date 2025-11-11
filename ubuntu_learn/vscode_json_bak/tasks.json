@@ -1,25 +1,26 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-      {
-          "label": "start_carto",
-          "type": "shell",
-          "command": "bash -c 'source /opt/ros/noetic/setup.bash && source /workspace/catkin_ws/devel_isolated/cartographer_ros/setup.bash && roslaunch cartographer_ros demo_backpack_2d.launch bag_filename:=/workspace/catkin_ws/download/cartographer_paper_deutsches_museum.bag' ",
-          "isBackground": true
-      },
-      {
-          "label": "delay_3s",
-          "type": "shell",
-          "command": "sleep 3"
-      },
-      {
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "start_carto",
+            "type": "shell",
+            "command": "bash -c 'source /opt/ros/noetic/setup.bash' ",
+        },
+        {
+            "label": "bash1",
+            "type": "shell",
+            "command": "bash -c 'source /opt/ros/noetic/setup.bash ' ",
+        },
+        {
           "label": "source_ros2_env",
+          "type": "shell",
           "dependsOn": [
-              "start_carto",
-              "delay_3s"
+            "start_carto",
+            "delay_3s"
           ],
           "dependsOrder": "sequence",
           "command": "echo ROS env ready"
-      }
-  ]
-}
+        }
+    ]
+  }
+  
