@@ -1,0 +1,14 @@
+{
+    "markdown-preview-enhanced.markdownFileExtensions": [
+        ".md",
+        ".markdown",
+        ".mdown",
+        ".mkdn",
+        ".mkd",
+        ".rmd",
+        ".qmd",
+        ".mdx"
+    ],
+    "markdown-preview-enhanced.enableScriptExecution": true,
+    "markdown-preview-enhanced.mathRenderingOption": "MathJax"
+}
