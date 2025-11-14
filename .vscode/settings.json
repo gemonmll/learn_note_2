@@ -9,6 +9,10 @@
         ".qmd",
         ".mdx"
     ],
-    "markdown-preview-enhanced.enableScriptExecution": true,
-    "markdown-preview-enhanced.mathRenderingOption": "MathJax"
+    
+     "markdown-preview-enhanced.mathRenderingOption": "MathJax",
+     "markdown-preview-enhanced.usePandocParser": false,
+     "markdown-preview-enhanced.enableScriptExecution": true,
+
+      
 }
