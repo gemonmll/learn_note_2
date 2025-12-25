@@ -13,6 +13,7 @@ docker run --rm -it \
 	--env="NVIDIA_DRIVER_CAPABILITIES=all" \
 	--env="NVIDIA_VISIBLE_DEVICES=all" \
     --cap-add=SYS_PTRACE --security-opt seccomp=unconfined \
+    --shm-size=1g
     --net=host \
     -e DISPLAY=$DISPLAY \
     -e QT_X11_NO_MITSHM=1 \
