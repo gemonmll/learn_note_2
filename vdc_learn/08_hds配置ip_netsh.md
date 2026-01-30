@@ -109,3 +109,59 @@ sudo systemctl enable --now static-neigh.service
 ---
 
 如果你把你 Ubuntu 上的网卡名（`ip link` 的结果里那一行，比如 `enp0s31f6` / `wlp...`）发我，我可以把上面的命令直接替换成你机器的“可复制粘贴版”。
+
+---- 删除服务
+如果你之前是按我给的 **systemd 持久化方式**（`/etc/systemd/system/static-neigh.service` + `/usr/local/sbin/add-static-neigh.sh` + `systemctl daemon-reload`）加的，那“删除/撤销”分三步：
+
+## 1）先停用并停止这个 service
+
+```bash
+sudo systemctl disable --now static-neigh.service
+```
+
+可选：确认一下状态
+
+```bash
+systemctl status static-neigh.service
+```
+
+## 2）删除 service 文件和脚本
+
+```bash
+sudo rm -f /etc/systemd/system/static-neigh.service
+sudo rm -f /usr/local/sbin/add-static-neigh.sh
+```
+
+## 3）让 systemd 重新加载配置（这就是你提到的 daemon-reload 对应的“撤销”动作）
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl reset-failed
+```
+
+---
+
+## 另外：把当前已经加进去的静态 neighbor 也删掉（如果你想立即恢复）
+
+先查看：
+
+```bash
+ip neigh show | grep 172.20.0.
+```
+
+删除（把网卡名换成你的，比如 `enp0s31f6`）：
+
+```bash
+sudo ip neigh del 172.20.0.11 dev enp0s31f6
+sudo ip neigh del 172.20.0.14 dev enp0s31f6
+```
+
+> 如果当初用的是 `ip neigh replace`，`del` 可能提示不存在也没关系，说明已经不在了。
+
+---
+
+如果你不确定 service 叫啥，可以先列出来：
+
+```bash
+systemctl list-unit-files | grep neigh
+```
