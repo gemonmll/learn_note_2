@@ -319,3 +319,363 @@ sem_post(sem_empty);
 👉「**POSIX SHM + semaphore 的标准生产级模板代码**」，可以直接拿去用在 Apollo / 感知 / 规划模块里。
 
 你是打算用 shm 做 **传感器数据共享**，还是 **模块间高频通信**？
+
+
+------------------
+## 共享内存 shm 也需要配合一个共享信号量
+
+```cpp
+/*
+ * Copyright (C) 2023 by SenseTime Group Limited. All rights reserved.
+ * wangxiantao <wangxiantao@senseauto.com>
+ */
+
+#include "shm_ipc.h"
+
+#include <semaphore.h>
+#include <time.h>
+
+namespace {
+
+std::string NormalizeSemName(const std::string& name) {
+    if (!name.empty() && name[0] != '/') {
+        return "/" + name;
+    }
+    return name;
+}
+
+std::string MakeSemName(const char* suffix) {
+    std::string name = SEM_NAME;
+    if (suffix != nullptr) {
+        name += suffix;
+    }
+    return NormalizeSemName(name);
+}
+
+bool OpenSemaphore(sem_t*& sem, std::string& name, const char* suffix) {
+    name = MakeSemName(suffix);
+    sem = sem_open(name.c_str(), O_CREAT, 0666, 0);
+    if (sem == SEM_FAILED) {
+        perror("sem_open failed");
+        return false;
+    }
+    return true;
+}
+
+void CloseSemaphore(sem_t*& sem, const std::string& name) {
+    if (sem != nullptr && sem != SEM_FAILED) {
+        sem_close(sem);
+        sem = SEM_FAILED;
+    }
+    if (!name.empty()) {
+        sem_unlink(name.c_str());
+    }
+}
+
+bool WaitSemaphore(sem_t* sem, int timeout_ms) {
+    if (sem == nullptr || sem == SEM_FAILED) {
+        return true;
+    }
+    struct timespec ts;
+    if (clock_gettime(CLOCK_REALTIME, &ts) != 0) {
+        return false;
+    }
+    ts.tv_sec += timeout_ms / 1000;
+    ts.tv_nsec += (timeout_ms % 1000) * 1000000L;
+    if (ts.tv_nsec >= 1000000000L) {
+        ts.tv_sec += 1;
+        ts.tv_nsec -= 1000000000L;
+    }
+    while (sem_timedwait(sem, &ts) != 0) {
+        if (errno == EINTR) {
+            continue;
+        }
+        if (errno == ETIMEDOUT) {
+            return false;
+        }
+        return false;
+    }
+    return true;
+}
+
+void PostSemaphoreLatest(sem_t* sem) {
+    if (sem == nullptr || sem == SEM_FAILED) {
+        return;
+    }
+    int sval = 0;
+    if (sem_getvalue(sem, &sval) == 0 && sval > 0) {
+        return;
+    }
+    sem_post(sem);
+}
+
+}  // namespace
+
+bool PosixShmSender::Init(const std::string& key) {
+    if (key != "") {
+        sender_fd_ = shm_open(key.c_str(), O_CREAT | O_RDWR | O_EXCL, 0666);
+    } else {
+        sender_fd_ = shm_open(SHM_PATH, O_CREAT | O_RDWR | O_EXCL, 0666);
+    }
+    if (sender_fd_ < 0) {
+        sender_fd_ = shm_open(SHM_PATH, O_RDWR, 0666);
+        if (sender_fd_ < 0) {
+            perror("PosixShmSender Init failed ");
+            return false;
+        }
+    } else {
+        ftruncate(sender_fd_, kShmSize);
+    }
+    data_ = reinterpret_cast<char*>(
+        mmap(0, kShmSize, PROT_WRITE, MAP_SHARED, sender_fd_, 0));
+    if (data_ == reinterpret_cast<char*>(MAP_FAILED)) {
+        perror("PosixShmSender mmap failed ");
+        close(sender_fd_);
+        return false;
+    }
+    if (!OpenSemaphore(sem_, sem_name_, "_posix")) {
+        munmap(data_, kShmSize);
+        close(sender_fd_);
+        return false;
+    }
+    return true;
+}
+
+void PosixShmSender::Run(int timeout_s) {
+    static uint32_t seq = 0;
+    auto start_time =
+        std::chrono::system_clock::now().time_since_epoch().count();
+    bool timeout = false;
+    while (is_running_ && !timeout) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms_));
+        {
+            std::lock_guard<std::mutex> lock(data_mutex_);
+            MsgInfo msg_info;
+            msg_info.seq = seq;
+            msg_info.timestamp =
+                std::chrono::system_clock::now().time_since_epoch().count();
+            memcpy(data_, &msg_info, sizeof(MsgInfo));
+            if (msg_info.timestamp - start_time > (timeout_s * 1e9)) {
+                timeout = true;
+            }
+        }
+        PostSemaphoreLatest(sem_);
+        seq++;
+    }
+}
+
+void PosixShmSender::Shutdown() {
+    is_running_ = false;
+    std::lock_guard<std::mutex> lock(data_mutex_);
+    munmap(data_, kShmSize);
+    close(sender_fd_);
+    CloseSemaphore(sem_, sem_name_);
+}
+
+bool PosixShmReceiver::Init(const std::string& key) {
+    if (key != "") {
+        receiver_fd_ = shm_open(key.c_str(), O_CREAT | O_RDWR | O_EXCL, 0666);
+    } else {
+        receiver_fd_ = shm_open(SHM_PATH, O_CREAT | O_RDWR | O_EXCL, 0666);
+    }
+    if (receiver_fd_ < 0) {
+        receiver_fd_ = shm_open(SHM_PATH, O_RDWR, 0666);
+        if (receiver_fd_ < 0) {
+            perror("PosixShmReceiver Init failed ");
+            return false;
+        }
+    } else {
+        ftruncate(receiver_fd_, kShmSize);
+    }
+    data_ = reinterpret_cast<char*>(
+        mmap(0, kShmSize, PROT_READ, MAP_SHARED, receiver_fd_, 0));
+    if (data_ == reinterpret_cast<char*>(MAP_FAILED)) {
+        perror("PosixShmReceiver mmap failed ");
+        close(receiver_fd_);
+        return false;
+    }
+    if (!OpenSemaphore(sem_, sem_name_, "_posix")) {
+        munmap(data_, kShmSize);
+        close(receiver_fd_);
+        return false;
+    }
+    return true;
+}
+
+void PosixShmReceiver::Run(int timeout_s) {
+    auto start_time =
+        std::chrono::system_clock::now().time_since_epoch().count();
+    bool timeout = false;
+    while (is_running_ && !timeout) {
+        if (!WaitSemaphore(sem_, 200)) {
+            auto curr_timestamp =
+                std::chrono::system_clock::now().time_since_epoch().count();
+            if (curr_timestamp - start_time > (timeout_s * 1e9)) {
+                timeout = true;
+            }
+            continue;
+        }
+        MsgInfo msg_info;
+        memcpy(&msg_info, data_, sizeof(MsgInfo));
+        LOG(INFO) << "Current posix shm read " << msg_info.seq
+                  << " seq written at  " << msg_info.timestamp << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms_));
+        auto curr_timestamp =
+            std::chrono::system_clock::now().time_since_epoch().count();
+        if (curr_timestamp - start_time > (timeout_s * 1e9)) {
+            timeout = true;
+        }
+    }
+}
+
+void PosixShmReceiver::Shutdown() {
+    if (!is_running_) return;
+    is_running_ = false;
+    munmap(data_, kShmSize);
+    close(receiver_fd_);
+    shm_unlink(SHM_PATH);
+    CloseSemaphore(sem_, sem_name_);
+}
+
+bool XsiShmSender::Init(const std::string& key) {
+    if (key != "") {
+        sender_fd_ = shmget(SHM_KEY + 1, kShmSize, 0666 | IPC_CREAT | IPC_EXCL);
+    } else {
+        sender_fd_ = shmget(SHM_KEY, kShmSize, 0666 | IPC_CREAT | IPC_EXCL);
+    }
+    if (sender_fd_ < 0) {
+        if (EEXIST == errno) {
+            sender_fd_ = shmget(SHM_KEY, 0, 0666);
+            if (sender_fd_ < 0) {
+                perror("shmget error");
+                return false;
+            }
+        } else {
+            perror("shmget error");
+            return false;
+        }
+    }
+    data_ = reinterpret_cast<char*>(shmat(sender_fd_, nullptr, 0));
+    if (data_ == reinterpret_cast<void*>(-1)) {
+        perror("shmat error.");
+        return false;
+    }
+    if (!OpenSemaphore(sem_, sem_name_, "_xsi")) {
+        shmdt(data_);
+        return false;
+    }
+    uint32_t* tmp = reinterpret_cast<uint32_t*>(data_ + sizeof(MsgInfo));
+    (*tmp)++;
+    return true;
+}
+
+void XsiShmSender::Run(int timeout_s) {
+    static uint32_t seq = 0;
+    auto start_time =
+        std::chrono::system_clock::now().time_since_epoch().count();
+    bool timeout = false;
+    while (is_running_ && !timeout) {
+        {
+            std::lock_guard<std::mutex> lock(data_mutex_);
+            MsgInfo msg_info;
+            msg_info.seq = seq;
+            msg_info.timestamp =
+                std::chrono::system_clock::now().time_since_epoch().count();
+            memcpy(data_, &msg_info, sizeof(MsgInfo));
+            if (msg_info.timestamp - start_time > (timeout_s * 1e9)) {
+                timeout = true;
+            }
+        }
+        seq++;
+        PostSemaphoreLatest(sem_);
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms_));
+    }
+}
+
+void XsiShmSender::Shutdown() {
+    is_running_ = false;
+    std::lock_guard<std::mutex> lock(data_mutex_);
+    uint32_t* tmp = reinterpret_cast<uint32_t*>(data_ + sizeof(MsgInfo));
+    (*tmp)--;
+    uint32_t count = *tmp;
+    shmdt(data_);
+    if (count == 0) {
+        shmctl(sender_fd_, IPC_RMID, 0);
+    }
+    CloseSemaphore(sem_, sem_name_);
+}
+
+bool XsiShmReceiver::Init(const std::string& key) {
+    // open only
+    if (key != "") {
+        receiver_fd_ =
+            shmget(SHM_KEY + 1, kShmSize, 0666 | IPC_CREAT | IPC_EXCL);
+    } else {
+        receiver_fd_ = shmget(SHM_KEY, kShmSize, 0666 | IPC_CREAT | IPC_EXCL);
+    }
+    if (receiver_fd_ < 0) {
+        if (EEXIST == errno) {
+            receiver_fd_ = shmget(SHM_KEY, 0, 0666);
+            if (receiver_fd_ < 0) {
+                perror("shmget error");
+                return false;
+            }
+        } else {
+            perror("shmget error");
+            return false;
+        }
+    }
+    data_ = reinterpret_cast<char*>(shmat(receiver_fd_, nullptr, 0));
+    if (data_ == reinterpret_cast<void*>(-1)) {
+        perror("shmat error.");
+        return false;
+    }
+    if (!OpenSemaphore(sem_, sem_name_, "_xsi")) {
+        shmdt(data_);
+        return false;
+    }
+    uint32_t* tmp = reinterpret_cast<uint32_t*>(data_ + sizeof(MsgInfo));
+    (*tmp)++;
+    return true;
+}
+
+void XsiShmReceiver::Run(int timeout_s) {
+    auto start_time =
+        std::chrono::system_clock::now().time_since_epoch().count();
+    bool timeout = false;
+    while (is_running_ && !timeout) {
+        if (!WaitSemaphore(sem_, 200)) {
+            auto curr_timestamp =
+                std::chrono::system_clock::now().time_since_epoch().count();
+            if (curr_timestamp - start_time > (timeout_s * 1e9)) {
+                timeout = true;
+            }
+            continue;
+        }
+        MsgInfo msg_info;
+        memcpy(&msg_info, data_, sizeof(MsgInfo));
+        LOG(INFO) << "Current system v shm read " << msg_info.seq
+                  << " seq written at  " << msg_info.timestamp << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms_));
+        auto curr_timestamp =
+            std::chrono::system_clock::now().time_since_epoch().count();
+        if (curr_timestamp - start_time > (timeout_s * 1e9)) {
+            timeout = true;
+        }
+    }
+}
+
+void XsiShmReceiver::Shutdown() {
+    if (!is_running_) return;
+    is_running_ = false;
+    uint32_t* tmp = reinterpret_cast<uint32_t*>(data_ + sizeof(MsgInfo));
+    (*tmp)--;
+    uint32_t count = *tmp;
+    shmdt(data_);
+    if (count == 0) {
+        shmctl(receiver_fd_, IPC_RMID, 0);
+    }
+    CloseSemaphore(sem_, sem_name_);
+}
+
+```
