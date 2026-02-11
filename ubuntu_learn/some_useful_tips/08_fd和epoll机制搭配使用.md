@@ -298,3 +298,336 @@ int32_t EpollTcpBase::CreateEpoll()
 * reactor 模型（one loop per thread）
 
 这套是**高性能中间件 / Apollo 模块通信 / 感知服务端**的标准底座。
+
+
+
+## epoll loop
+
+```cpp
+// one loop per thread, call epoll_wait and handle all coming events
+void EpollTcpClient::EpollLoop() {
+    // request some memory, if events ready, socket events will copy to this
+    // memory from kernel
+    struct epoll_event* alive_events =
+        static_cast<epoll_event*>(calloc(kMaxEvents, sizeof(epoll_event)));
+    if (!alive_events) {
+        LOG(ERROR) << "calloc memory failed for epoll_events!" << std::endl;
+        return;
+    }
+    while (loop_flag_) {
+        int num = epoll_wait(efd_, alive_events, kMaxEvents, kEpollWaitTime);
+
+        for (int i = 0; i < num; ++i) {
+            int fd = alive_events[i].data.fd;
+            int events = alive_events[i].events;
+
+            if ((events & EPOLLERR) || (events & EPOLLHUP)) {
+                LOG(INFO) << "epoll_wait error!" << std::endl;
+                // An error has occured on this fd, or the socket is not ready
+                // for reading (why were we notified then?).
+                ::close(fd);
+            } else if (events & EPOLLRDHUP) {
+                // Stream socket peer closed connection, or shut down writing
+                // half of connection.
+                // more inportant, We still to handle disconnection when
+                // read()/recv() return 0 or -1 just to be sure.
+                LOG(INFO) << "fd:" << fd << " closed EPOLLRDHUP!" << std::endl;
+                // close fd and epoll will remove it
+                ::close(fd);
+            } else if (events & EPOLLIN) {
+                // other fd read event coming, meaning data coming
+                OnSocketRead(fd);
+            } else if (events & EPOLLOUT) {
+                // pass
+            } else {
+                LOG(INFO) << "unknow epoll event!" << std::endl;
+            }
+        }  // end for (int i = 0; ...
+    }  // end while (loop_flag_)
+    free(alive_events);
+}
+```
+
+这段 `EpollLoop()` 基本就是一个**标准 Reactor/EventLoop 的雏形**了 👍。我按“整体流程 → 每一段在干嘛 → 事件类型含义 → 设计上的关键点 & 可改进点”给你拆解，帮你真正吃透 epoll 事件循环。
+
+---
+
+## 1️⃣ 这段函数在干嘛？（一句话总览）
+
+> **一个线程一个 epoll 事件循环：
+> 等待 IO 事件 → 分发事件 → 处理 socket 读写 / 关闭**
+
+典型的网络事件循环（Event Loop）：
+
+```text
+while (running) {
+    epoll_wait(...)
+    for (event in ready_events) {
+        handle(event)
+    }
+}
+```
+
+你这就是标准 Reactor 模式中的 **Event Loop**。
+
+---
+
+## 2️⃣ 逐段解释你的代码
+
+### ✅ 申请事件数组（用户态缓冲区）
+
+```cpp
+struct epoll_event* alive_events =
+    static_cast<epoll_event*>(calloc(kMaxEvents, sizeof(epoll_event)));
+```
+
+作用：
+
+* `epoll_wait()` 返回的就绪事件，会被内核拷贝到这个数组里
+* `kMaxEvents` = 一次最多处理多少个 fd 的事件
+
+直觉理解：
+
+> epoll_wait 把“已就绪 fd 列表”塞进你提供的数组
+
+---
+
+### ✅ epoll_wait：阻塞等待内核事件
+
+```cpp
+int num = epoll_wait(efd_, alive_events, kMaxEvents, kEpollWaitTime);
+```
+
+含义：
+
+* 阻塞等待（最多 kEpollWaitTime ms）
+* 返回 **就绪 fd 的数量**
+* alive_events[0..num-1] 是本轮发生事件的 fd
+
+直觉：
+
+> “内核，有事件你叫我，没有就等一会儿”
+
+---
+
+### ✅ 遍历本轮所有就绪事件
+
+```cpp
+for (int i = 0; i < num; ++i) {
+    int fd = alive_events[i].data.fd;
+    int events = alive_events[i].events;
+```
+
+* `fd`：发生事件的 socket
+* `events`：事件类型位掩码（EPOLLIN / EPOLLOUT / EPOLLRDHUP ...）
+
+---
+
+## 3️⃣ 每种 epoll 事件的真实含义
+
+### 🚨 1. EPOLLERR / EPOLLHUP
+
+```cpp
+if ((events & EPOLLERR) || (events & EPOLLHUP)) {
+    ::close(fd);
+}
+```
+
+含义：
+
+* **EPOLLERR**：socket 出错（对端异常、网络错误等）
+* **EPOLLHUP**：连接挂起（hang up），通常意味着连接不可用了
+
+处理策略：
+
+👉 直接关闭 fd，释放资源
+这是工程里最常见的做法。
+
+---
+
+### 🔌 2. EPOLLRDHUP（对端关闭写端）
+
+```cpp
+else if (events & EPOLLRDHUP) {
+    ::close(fd);
+}
+```
+
+含义：
+
+* TCP 对端调用了：
+
+  ```cpp
+  shutdown(sock, SHUT_WR);
+  ```
+* 或直接 close 了 socket
+* 表示：**对端不会再发数据**
+
+你这里的注释说得很专业 👍：
+
+> 读到 0 或 -1 时仍然要兜底处理
+
+工程实践中：
+
+* RDHUP 通常意味着连接生命周期结束
+* 关闭是合理选择
+
+---
+
+### 📥 3. EPOLLIN（可读事件）
+
+```cpp
+else if (events & EPOLLIN) {
+    OnSocketRead(fd);
+}
+```
+
+含义：
+
+* socket 接收缓冲区有数据
+* 或对端关闭导致 recv 返回 0
+
+这就是 epoll + socket 的核心工作路径：
+
+> “有数据了，快来读”
+
+你在 `OnSocketRead(fd)` 里用 ET 模式循环 recv，是非常正确的写法。
+
+---
+
+### 📤 4. EPOLLOUT（可写事件）
+
+```cpp
+else if (events & EPOLLOUT) {
+    // pass
+}
+```
+
+含义：
+
+* socket 发送缓冲区有空间
+* 可以继续 send 之前没发完的数据
+
+你现在没实现写事件处理，但工程里通常用来：
+
+* 处理大包发送
+* 处理 send 返回 EAGAIN 的续写
+
+---
+
+### ❓ 5. 兜底未知事件
+
+```cpp
+else {
+    LOG(INFO) << "unknow epoll event!" << std::endl;
+}
+```
+
+基本属于调试保护，实际运行中不常见。
+
+---
+
+## 4️⃣ 设计思想：one loop per thread
+
+```cpp
+// one loop per thread, call epoll_wait and handle all coming events
+```
+
+这句话很关键，这是高性能网络服务的主流模型之一：
+
+* 每个线程一个 epoll 实例
+* 每个线程管理一组连接
+* 避免多线程抢同一个 epollfd 的锁竞争
+
+常见架构：
+
+```text
+主线程：accept 新连接
+   |
+hash / round-robin
+   |
+分发 fd 到多个 IO 线程
+   |
+每个 IO 线程：独立 epoll_wait
+```
+
+👉 这就是很多高性能网络库（muduo / libevent / libev / netty）的基本模型。
+
+---
+
+## 5️⃣ 你这份代码的工程级评价 👍
+
+优点：
+
+* ✅ epoll_wait + 事件分发模型正确
+* ✅ 错误事件处理齐全（ERR/HUP/RDHUP）
+* ✅ one loop per thread 架构合理
+* ✅ ET 模式配套 recv 写法正确
+
+已经是**“高性能网络编程入门到中级”水平**了。
+
+---
+
+## 6️⃣ 可以进一步优化的点（进阶）
+
+### ⚠️ 1. close(fd) 前最好 epoll_ctl DEL
+
+虽然内核在 close(fd) 时会自动从 epoll 中移除，但工程里更严谨：
+
+```cpp
+epoll_ctl(efd_, EPOLL_CTL_DEL, fd, nullptr);
+close(fd);
+```
+
+---
+
+### ⚠️ 2. EPOLLOUT 不应长期监听
+
+工程实践中：
+
+* 默认不监听 EPOLLOUT
+* 只有当 send 返回 EAGAIN（写缓冲区满）时，才临时注册 EPOLLOUT
+* 可写后再取消监听，避免 busy loop
+
+---
+
+### ⚠️ 3. alive_events 每次循环 calloc/free
+
+你现在是在函数入口 calloc，一次循环结束 free，其实没问题。
+但更高性能的做法：
+
+* alive_events 作为成员变量
+* 只分配一次，循环复用
+
+---
+
+### ⚠️ 4. epoll_wait 返回 0 的处理
+
+当 `num == 0`：
+
+* 表示超时
+* 可以做：
+
+  * 心跳检测
+  * 连接清理
+  * 统计
+
+---
+
+## 7️⃣ 一句话总结你这段 EpollLoop
+
+> **这是一个典型的 Reactor 事件循环：
+> epoll_wait 拉事件，
+> for 循环分发，
+> OnSocketRead 处理 IO，
+> close 负责连接生命周期。**
+
+---
+
+## 🚀 如果你想进阶下一步
+
+我可以帮你补一个完整架构示例：
+
+👉 epoll + accept + 非阻塞 socket + EPOLLET + 发送队列 + 粘包协议 + 连接管理
+
+这套基本就是一个“迷你版高性能 TCP 客户端/服务端框架”。
