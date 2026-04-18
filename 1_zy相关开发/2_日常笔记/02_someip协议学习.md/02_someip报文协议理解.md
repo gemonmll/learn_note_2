@@ -80,3 +80,17 @@ fire-and-forget，请求但不期待响应。
 0x08 E_WRONG_INTERFACE_VERSION
 0x09 E_MALFORMED_MESSAGE
 0x0A E_WRONG_MESSAGE_TYPE
+
+---------------
+
+### 3 注意问题
+错点 1：Length 不是整个报文长度
+它是“从 Request ID 开始到末尾”的长度。
+所以：
+总报文长度 = 8 + Length
+
+错点 2：Return Code 不是每种消息都真有意义
+只有 0x80 RESPONSE 和 0x81 ERROR 真正用它表达处理结果；其他类型通常都写 0x00。
+
+错点 3：Request ID 不是服务端生成的
+它是请求侧生成的，服务端只是原样带回去。
