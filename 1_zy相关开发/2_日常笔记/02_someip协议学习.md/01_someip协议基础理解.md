@@ -73,3 +73,18 @@ client                         server
   |                              |
   |<--- event / field notifier - |
   |<--- event / field notifier - |
+
+---------------------------
+
+**service id和 instance id区别**
+1)service是提供的一类服务（比如车门状态）
+2)instance是提供服务的实例（比如左前门）
+3)service id有在someip报文中明确定义，4)instance id未在报文中定义，与endpoint有关,endpoint 通常就是这个 service instance 对外提供通信所使用的网络端点，也就是 IP + 传输层协议（TCP/UDP）+ port
+
+**服务类别  ->  服务实例  ->  具体方法**
+**Service   ->  Instance   ->  Method**
+
+**编程使用**
+request->set_service(0x1234);
+request->set_instance(0x5678);
+request->set_method(0x0421);
