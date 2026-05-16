@@ -1,0 +1,154 @@
+2026-05-03 18:29:48.781727 hello_world_service [info] Using configuration file: "../helloworld-local.json".
+2026-05-03 18:29:48.781896 hello_world_service [info] Parsed vsomeip configuration in 1ms
+2026-05-03 18:29:48.781930 hello_world_service [info] Configuration module loaded.
+2026-05-03 18:29:48.781950 hello_world_service [info] Security disabled!
+2026-05-03 18:29:48.781965 hello_world_service [info] Initializing vsomeip (3.7.2) application "hello_world_service".
+2026-05-03 18:29:48.782074 hello_world_service [info] Instantiating routing manager [Host].
+2026-05-03 18:29:48.782189 hello_world_service [info] Starting Routing Manager [Host] with state RS_UNKNOWN
+2026-05-03 18:29:48.782245 hello_world_service [info] Creating routing root with transport protocol: UDS
+2026-05-03 18:29:48.782269 hello_world_service [info] Routing root @ /tmp/vsomeip-0
+2026-05-03 18:29:48.782450 hello_world_service [info] Instantiating routing manager [Proxy].
+2026-05-03 18:29:48.782538 hello_world_service [info] vsomeip tracing not enabled. vsomeip service discovery tracing not enabled.
+2026-05-03 18:29:48.782554 hello_world_service [info] Application(hello_world_service, 4444) is initialized (11, 100).
+2026-05-03 18:29:48.782577 hello_world_service [info] app::init: End of init, application "hello_world_service" (4444)
+2026-05-03 18:29:48.782620 hello_world_service [info] Starting vsomeip application "hello_world_service" (4444) using 2 threads I/O nice 0
+2026-05-03 18:29:48.782879 hello_world_service [info] Client [0000] routes unicast:134.86.56.94, netmask:255.255.255.0
+2026-05-03 18:29:48.782998 hello_world_service [info] netlink: from 0 to 1, if=0, mc=0, count=0
+2026-05-03 18:29:48.782968 hello_world_service [info] Started thread 4444_m_dispatch, application 'hello_world_service', id 76c791bb16c0, tid 228721
+2026-05-03 18:29:48.783120 hello_world_service [info] Watchdog is disabled!
+2026-05-03 18:29:48.783147 hello_world_service [info] emi::endpoint_manager_impl: Started thread m_multicast 76c7913b06c0, tid 228722
+2026-05-03 18:29:48.783161 hello_world_service [info] vSomeIP routing ready.
+2026-05-03 18:29:48.783193 hello_world_service [info] ac::auxiliary_context: Started thread m_auxiliary 76c790baf6c0, tid 228723
+2026-05-03 18:29:48.783279 hello_world_service [info] rcsm::change_state_unlocked: Client 0xffff, state ST_DEREGISTERED -> ST_REGISTERING
+2026-05-03 18:29:48.783330 hello_world_service [info] Client [4444] is connecting to [0000] at /tmp/vsomeip-0 endpoint > 0x5ba051535aa0
+2026-05-03 18:29:48.783378 hello_world_service [info] le::set_state_unlocked: change state: INIT -> CONNECTING, Client: 0000, connection : role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5ba0515358e0, send_queue: 82, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [0, 5]}, is_sending: false, state: INIT
+2026-05-03 18:29:48.783593 hello_world_service [info] Started thread 4444_io00, application 'hello_world_service', id 76c792c93840, tid 228719
+2026-05-03 18:29:48.783709 hello_world_service [info] le::set_state_unlocked: change state: CONNECTING -> CONNECTED, Client: 0000, connection : role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5ba0515358e0, send_queue: 82, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [0, 5]}, is_sending: false, state: CONNECTING
+2026-05-03 18:29:48.783741 hello_world_service [info] Started thread 4444_io01, application 'hello_world_service', id 76c78bfff6c0, tid 228724
+2026-05-03 18:29:48.783818 hello_world_service [info] vSomeIP 3.7.2
+2026-05-03 18:29:48.784023 hello_world_service [info] rmb::log_network_state: UDP connections
+2026-05-03 18:29:48.784047 hello_world_service [info] idx, local_addr, remote_addr, state, tx_queue:rx_queue, timer_active:tm_when, retrnsmt, uid, unanswered, inode
+2026-05-03 18:29:48.784075 hello_world_service [info] 1745: 0.0.0.0:60432 0.0.0.0:0 07 00000000:00000000 00:00000000 00000000 108 0 19724
+2026-05-03 18:29:48.784097 hello_world_service [info] Assigned client ID 0x4444 to "hello_world_service" ("jzm") @ 1000/1000
+2026-05-03 18:29:48.784154 hello_world_service [info] emi::add_local_routing_endpoint_unlocked: self 0x0000, client 0x4444, connection > role: server, own: /tmp/vsomeip-0, peer: , mem: 0x76c780000fc0
+2026-05-03 18:29:48.784197 hello_world_service [info] Application/Client 4444 is registering
+2026-05-03 18:29:48.784103 hello_world_service [info] 6902: 127.0.0.54:53 0.0.0.0:0 07 00000000:00000000 00:00000000 00000000 991 0 757030
+2026-05-03 18:29:48.784360 hello_world_service [info] Creating local server endpoint for client 0x4444 with transport type UDS.
+2026-05-03 18:29:48.784369 hello_world_service [info] 6902: 127.0.0.53:53 0.0.0.0:0 07 00000000:00000000 00:00000000 00000000 991 0 757028
+2026-05-03 18:29:48.784416 hello_world_service [info] 6917: 192.168.1.43:68 192.168.1.1:67 01 00000000:00000000 00:00000000 00000000 0 0 29735
+2026-05-03 18:29:48.784446 hello_world_service [info] 12202: 224.0.0.251:5353 0.0.0.0:0 07 00000000:00000000 00:00000000 00000000 1000 0 434080
+2026-05-03 18:29:48.784472 hello_world_service [info] 12202: 0.0.0.0:5353 0.0.0.0:0 07 00000000:00000000 00:00000000 00000000 108 0 19722
+2026-05-03 18:29:48.784520 hello_world_service [info] Listening @ /tmp/vsomeip-4444
+2026-05-03 18:29:48.784588 hello_world_service [info] rmc::on_client_assign_ack: Client 0x4444 (hello_world_service) successfully connected to routing via UDS ~> registering...
+2026-05-03 18:29:48.784611 hello_world_service [info] rmc::register_application: Client 0x4444 Registering to routing manager @ vsomeip-0
+2026-05-03 18:29:48.784630 hello_world_service [info] rcsm::registered: Former client id: 0xffff, new 0x4444
+2026-05-03 18:29:48.784646 hello_world_service [info] rcsm::change_state_unlocked: Client 0x4444, state ST_REGISTERING -> ST_REGISTERED
+2026-05-03 18:29:48.784668 hello_world_service [info] Application/Client 4444 (hello_world_service) is registered.
+2026-05-03 18:29:48.785124 hello_world_service [info] rmi::offer_service: Added service 0x1111 to pending_sd_offers_.size = 1
+2026-05-03 18:29:48.785212 hello_world_service [info] ON_OFFER_SERVICE(4444): [1111.2222:0.0]
+2026-05-03 18:29:48.785286 hello_world_service [info] OFFER(4444): [1111.2222:0.0] (true)
+2026-05-03 18:29:48.785874 hello_world_service [info] rmb::log_network_state: TCP connections
+2026-05-03 18:29:48.785898 hello_world_service [info] idx, local_addr, remote_addr, state, tx_queue:rx_queue, timer_active:tm_when, retrnsmt, uid, unanswered, inode
+2026-05-03 18:29:48.785916 hello_world_service [info] 0: 127.0.0.1:9090 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 1000 0 2846
+2026-05-03 18:29:48.785940 hello_world_service [info] 1: 0.0.0.0:22 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 0 0 1772
+2026-05-03 18:29:48.785965 hello_world_service [info] 2: 127.0.0.1:33331 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 1000 0 9786
+2026-05-03 18:29:48.785988 hello_world_service [info] 3: 127.0.0.1:631 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 0 0 22143
+2026-05-03 18:29:48.786011 hello_world_service [info] 4: 127.0.0.53:53 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 991 0 757029
+2026-05-03 18:29:48.786034 hello_world_service [info] 5: 127.0.0.1:1456 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 1000 0 16125
+2026-05-03 18:29:48.786057 hello_world_service [info] 6: 127.0.0.1:36039 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 0 0 66569
+2026-05-03 18:29:48.786081 hello_world_service [info] 7: 127.0.0.1:38107 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 1000 0 24117
+2026-05-03 18:29:48.786105 hello_world_service [info] 8: 127.0.0.54:53 0.0.0.0:0 0A 00000000:00000000 00:00000000 00000000 991 0 757031
+2026-05-03 18:29:48.786129 hello_world_service [info] 9: 192.168.1.43:47698 209.141.61.246:8888 01 00000000:00000000 02:00000AB4 00000000 1000 0 890113
+2026-05-03 18:29:48.786153 hello_world_service [info] 10: 127.0.0.1:51330 127.0.0.1:9090 01 00000000:00000000 00:00000000 00000000 1000 0 11124
+2026-05-03 18:29:48.786178 hello_world_service [info] 11: 192.168.1.43:41022 39.173.146.130:25838 01 00000000:00000000 02:00000780 00000000 1000 0 881350
+2026-05-03 18:29:48.786203 hello_world_service [info] 12: 192.168.1.43:59550 20.42.73.31:443 01 00000000:00000000 02:00000477 00000000 1000 0 874162
+2026-05-03 18:29:48.786237 hello_world_service [info] 13: 127.0.0.1:38107 127.0.0.1:36740 01 00000000:00000000 00:00000000 00000000 1000 0 24163
+2026-05-03 18:29:48.786261 hello_world_service [info] 14: 192.168.1.43:51688 16.162.105.237:9999 01 00000000:00000000 02:000007B3 00000000 1000 0 885450
+2026-05-03 18:29:48.786284 hello_world_service [info] 15: 192.168.1.43:60900 39.173.146.130:25830 01 00000000:00000000 02:000008B3 00000000 1000 0 890067
+2026-05-03 18:29:48.786307 hello_world_service [info] 16: 192.168.1.43:49768 39.173.146.130:25849 01 00000000:00000000 02:0000084D 00000000 1000 0 884515
+2026-05-03 18:29:48.786331 hello_world_service [info] 17: 192.168.1.43:60162 39.173.146.130:25856 01 00000000:00000000 02:00000AB3 00000000 1000 0 885507
+2026-05-03 18:29:48.786353 hello_world_service [info] 18: 192.168.1.43:38212 39.173.146.130:25854 01 00000000:00000000 02:00000A80 00000000 1000 0 881406
+2026-05-03 18:29:48.786377 hello_world_service [info] 19: 127.0.0.1:36039 127.0.0.1:47762 01 00000000:00000000 00:00000000 00000000 0 0 50083
+2026-05-03 18:29:48.786400 hello_world_service [info] 20: 127.0.0.1:9090 127.0.0.1:51330 01 00000000:00000000 02:0000000B 00000000 1000 0 20119
+2026-05-03 18:29:48.786424 hello_world_service [info] 21: 192.168.1.43:55966 209.141.43.110:8888 01 00000000:00000000 02:00000A80 00000000 1000 0 881400
+2026-05-03 18:29:48.786447 hello_world_service [info] 22: 192.168.1.43:47300 211.22.180.230:25852 01 00000000:00000000 02:000008C7 00000000 1000 0 890063
+2026-05-03 18:29:48.786471 hello_world_service [info] 23: 192.168.1.43:47036 124.225.137.214:25835 01 00000000:00000000 02:0000084D 00000000 1000 0 881376
+2026-05-03 18:29:48.786494 hello_world_service [info] 24: 127.0.0.1:36039 127.0.0.1:47754 01 00000000:00000000 00:00000000 00000000 0 0 63362
+2026-05-03 18:29:48.786516 hello_world_service [info] 25: 127.0.0.1:38107 127.0.0.1:36728 01 00000000:00000000 00:00000000 00000000 1000 0 40694
+2026-05-03 18:29:48.787426 hello_world_service [info] 26: 192.168.1.43:53590 38.83.41.226:25857 01 00000000:00000000 02:0000008A 00000000 1000 0 880305
+2026-05-03 18:29:48.787453 hello_world_service [info] 27: 192.168.1.43:39830 3.112.208.196:9999 01 00000000:00000000 02:00000780 00000000 1000 0 885451
+2026-05-03 18:29:48.787473 hello_world_service [info] 28: 192.168.1.43:60736 39.173.146.130:25845 01 00000000:00000000 02:000009E7 00000000 1000 0 884536
+2026-05-03 18:29:48.787495 hello_world_service [info] 29: 192.168.1.43:47942 104.244.74.26:8888 01 00000000:00000000 02:00000ABB 00000000 1000 0 884534
+2026-05-03 18:29:48.787516 hello_world_service [info] 30: 192.168.1.43:44250 124.225.137.214:25837 01 00000000:00000000 02:00000169 00000000 1000 0 884514
+2026-05-03 18:29:48.787538 hello_world_service [info] 31: 192.168.1.43:49382 39.173.146.130:25839 01 00000000:00000000 02:00000780 00000000 1000 0 881351
+2026-05-03 18:29:48.787559 hello_world_service [info] 32: 192.168.1.43:60466 39.173.146.130:25834 01 00000000:00000000 02:00000780 00000000 1000 1 882460
+2026-05-03 18:29:48.787580 hello_world_service [info] 33: 192.168.1.43:40290 39.173.146.130:25840 01 00000000:00000000 02:000009B3 00000000 1000 0 881391
+2026-05-03 18:29:48.787602 hello_world_service [info] 34: 192.168.1.43:41368 205.185.125.179:8888 01 00000000:00000000 02:00000AFA 00000000 1000 0 890112
+2026-05-03 18:29:48.787624 hello_world_service [info] 35: 127.0.0.1:47754 127.0.0.1:36039 01 00000000:00000000 00:00000000 00000000 0 0 51379
+2026-05-03 18:29:48.787645 hello_world_service [info] 36: 127.0.0.1:47762 127.0.0.1:36039 01 00000000:00000000 00:00000000 00000000 0 0 21196
+2026-05-03 18:29:48.787667 hello_world_service [info] 37: 192.168.1.43:60388 39.173.146.130:25836 01 00000000:00000000 02:00000636 00000000 1000 0 32202
+2026-05-03 18:29:48.787690 hello_world_service [info] 38: 127.0.0.1:34368 127.0.0.1:7897 01 00000000:00000000 02:0000004F 00000000 1000 0 885077
+2026-05-03 18:29:48.787711 hello_world_service [info] 39: 127.0.0.1:38302 127.0.0.1:7897 01 00000000:00000000 02:0000005C 00000000 1000 0 887991
+2026-05-03 18:29:48.787738 hello_world_service [info] 40: 192.168.1.43:43780 39.173.146.130:25841 01 00000000:00000000 02:0000094D 00000000 1000 0 884528
+2026-05-03 18:29:48.787759 hello_world_service [info] 41: 127.0.0.1:45890 127.0.0.1:7897 01 00000000:00000000 02:000002AD 00000000 1000 0 879039
+2026-05-03 18:29:48.787780 hello_world_service [info] 42: 127.0.0.1:45900 127.0.0.1:7897 01 00000000:00000000 02:00000246 00000000 1000 0 876418
+2026-05-03 18:29:48.787801 hello_world_service [info] 43: 127.0.0.1:38107 127.0.0.1:59464 05 00000000:00000000 00:00000000 00000000 1000 0 37885
+2026-05-03 18:29:48.787823 hello_world_service [info] 44: 192.168.1.43:34462 61.227.214.151:25853 01 00000000:00000000 02:00000A4D 00000000 1000 0 884538
+2026-05-03 18:29:48.787844 hello_world_service [info] 45: 127.0.0.1:36728 127.0.0.1:38107 01 00000000:00000000 02:00000881 00000000 1000 0 50052
+2026-05-03 18:29:48.787888 hello_world_service [info] 46: 127.0.0.1:36740 127.0.0.1:38107 01 00000000:00000000 02:00000AB3 00000000 1000 0 16119
+2026-05-03 18:29:48.787918 hello_world_service [info] 47: 192.168.1.43:37788 39.173.146.130:25861 01 00000000:00000000 02:000009B3 00000000 1000 0 884532
+2026-05-03 18:29:48.787942 hello_world_service [info] 48: 192.168.1.43:48562 23.144.12.91:25858 01 00000000:00000000 02:00000B56 00000000 1000 0 880306
+2026-05-03 18:29:48.787963 hello_world_service [info] 49: 127.0.0.1:59464 127.0.0.1:38107 08 00000000:00000001 02:0000105C 00000000 1000 0 40747
+2026-05-03 18:29:56.614535 hello_world_service [info] Assigned client ID 0x5555 to "hello_world_client" ("jzm") @ 1000/1000
+2026-05-03 18:29:56.614592 hello_world_service [info] emi::add_local_routing_endpoint_unlocked: self 0x0000, client 0x5555, connection > role: server, own: /tmp/vsomeip-0, peer: , mem: 0x5ba05153f310
+2026-05-03 18:29:56.614607 hello_world_service [info] Application/Client 5555 is registering
+2026-05-03 18:29:56.625368 hello_world_service [info] REQUEST(5555): [1111.2222:255.4294967295]
+2026-05-03 18:29:56.626263 hello_world_service [info] emb::add_local_server_endpoint_unlocked: self 0x4444, client 0x5555, connection > role: server, own: /tmp/vsomeip-4444, peer: , mem: 0x5ba05153f840
+2026-05-03 18:29:56.626716 hello_world_service [info] RELEASE(5555): [1111.2222]
+2026-05-03 18:29:56.626814 hello_world_service [warning] le::receive_cbk: Escalating the error: End of file socket > Client: 5555, connection : role: server, own: /tmp/vsomeip-0, peer: , mem: 0x5ba05153f310, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [4, 5]}, is_sending: false, state: CONNECTED
+2026-05-03 18:29:56.626838 hello_world_service [info] le::set_state_unlocked: change state: CONNECTED -> FAILED, Client: 5555, connection : role: server, own: /tmp/vsomeip-0, peer: , mem: 0x5ba05153f310, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [4, 5]}, is_sending: false, state: CONNECTED
+2026-05-03 18:29:56.626864 hello_world_service [info] rmi::cleanup_client: self 0x0000 handles cleanup of client 0x5555
+2026-05-03 18:29:56.626882 hello_world_service [info] Application/Client 5555 is deregistering
+2026-05-03 18:29:56.626872 hello_world_service [warning] le::receive_cbk: Escalating the error: End of file socket > Client: 5555, connection : role: server, own: /tmp/vsomeip-4444, peer: , mem: 0x5ba05153f840, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [2, 5]}, is_sending: false, state: CONNECTED
+2026-05-03 18:29:56.626912 hello_world_service [info] emi::remove_routing_endpoint: client 0x5555
+2026-05-03 18:29:56.626910 hello_world_service [info] le::set_state_unlocked: change state: CONNECTED -> FAILED, Client: 5555, connection : role: server, own: /tmp/vsomeip-4444, peer: , mem: 0x5ba05153f840, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [2, 5]}, is_sending: false, state: CONNECTED
+2026-05-03 18:29:56.626922 hello_world_service [info] lsui::stop: role: server, own: /tmp/vsomeip-0, peer: , mem: 0x5ba05153f310
+2026-05-03 18:29:56.626963 hello_world_service [info] le::set_state_unlocked: change state: FAILED -> STOPPED, Client: 5555, connection : role: server, own: /tmp/vsomeip-0, peer: , mem: 0x5ba05153f310, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [4, 5]}, is_sending: false, state: FAILED
+2026-05-03 18:29:56.626972 hello_world_service [info] emi::remove_routing_endpoint: self 0x0000 is closing connection to client 0x5555 endpoint > role: server, own: /tmp/vsomeip-0, peer: , mem: 0x5ba05153f310
+2026-05-03 18:29:56.626931 hello_world_service [info] rmc::cleanup_client: self 0x4444 handles cleanup of client 0x5555, not reconnecting
+2026-05-03 18:29:56.627064 hello_world_service [info] emb::remove_local: self 0x4444, client 0x5555, error 1
+2026-05-03 18:29:56.627083 hello_world_service [info] lsui::stop: role: server, own: /tmp/vsomeip-4444, peer: , mem: 0x5ba05153f840
+2026-05-03 18:29:56.627100 hello_world_service [info] le::set_state_unlocked: change state: FAILED -> STOPPED, Client: 5555, connection : role: server, own: /tmp/vsomeip-4444, peer: , mem: 0x5ba05153f840, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [2, 5]}, is_sending: false, state: FAILED
+2026-05-03 18:29:56.627110 hello_world_service [info] emb::remove_local_server_endpoint_unlocked: self 0x4444 is closing connection to client 0x5555 endpoint > role: server, own: /tmp/vsomeip-4444, peer: , mem: 0x5ba05153f840
+2026-05-03 18:29:58.789750 hello_world_service [info] vSomeIP 3.7.2
+2026-05-03 18:29:58.790044 hello_world_service [info] rmb::log_network_state: UDP connections
+2026-05-03 18:29:58.790068 hello_world_service [info] idx, local_addr, remote_addr, state, tx_queue:rx_queue, timer_active:tm_when, retrnsmt, uid, unanswered, inode
+2026-05-03 18:29:58.791210 hello_world_service [info] rmb::log_network_state: TCP connections
+2026-05-03 18:29:58.791231 hello_world_service [info] idx, local_addr, remote_addr, state, tx_queue:rx_queue, timer_active:tm_when, retrnsmt, uid, unanswered, inode
+2026-05-03 18:30:01.626720 hello_world_service [info] app::stop: Stopping vsomeip application "hello_world_service" (4444).
+2026-05-03 18:30:01.626836 hello_world_service [info] rmi::stop_offer_service: Removed service 0x1111 from pending_sd_offers_.size = 0
+2026-05-03 18:30:01.626910 hello_world_service [info] emb::operator(): Start endpoints flush for client 0x4444
+2026-05-03 18:30:01.626981 hello_world_service [info] emb::flush_local_endpoint_queues: Finished endpoints flush for client 0x4444
+2026-05-03 18:30:01.626944 hello_world_service [info] ON_STOP_OFFER_SERVICE(4444): [1111.2222:0.0]
+2026-05-03 18:30:01.627016 hello_world_service [info] rcsm::change_state_unlocked: Client 0x4444, state ST_REGISTERED -> ST_DEREGISTERED
+2026-05-03 18:30:01.627055 hello_world_service [info] laui::close: Closing the acceptor: /tmp/vsomeip-4444, mem: 0x5ba051534f70
+2026-05-03 18:30:01.627028 hello_world_service [info] Stopped thread 4444_m_dispatch, application 'hello_world_service', id 76c791bb16c0, tid 228721
+2026-05-03 18:30:01.627126 hello_world_service [info] lsui::stop: role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5ba0515358e0
+2026-05-03 18:30:01.627164 hello_world_service [info] le::set_state_unlocked: change state: CONNECTED -> STOPPED, Client: 0000, connection : role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5ba0515358e0, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [2, 5]}, is_sending: false, state: CONNECTED
+2026-05-03 18:30:01.627224 hello_world_service [info] emb::clear_local_endpoints: self 0x4444
+2026-05-03 18:30:01.627290 hello_world_service [info] laui::close: Closing the acceptor: /tmp/vsomeip-0, mem: 0x5ba051533eb0
+2026-05-03 18:30:01.627268 hello_world_service [info] ON_STOP_OFFER_SERVICE(4444): [1111.2222:0.0]
+2026-05-03 18:30:01.627335 hello_world_service [info] emi::stop: called
+2026-05-03 18:30:01.627385 hello_world_service [info] STOP OFFER(4444): [1111.2222:0.0] (true)
+2026-05-03 18:30:01.627420 hello_world_service [info] emi::clear_routing_endpoints:  
+2026-05-03 18:30:01.627475 hello_world_service [info] lsui::stop: role: server, own: /tmp/vsomeip-0, peer: , mem: 0x76c780000fc0
+2026-05-03 18:30:01.627512 hello_world_service [info] le::set_state_unlocked: change state: CONNECTED -> STOPPED, Client: 4444, connection : role: server, own: /tmp/vsomeip-0, peer: , mem: 0x76c780000fc0, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [4, 5]}, is_sending: false, state: CONNECTED
+2026-05-03 18:30:01.627519 hello_world_service [warning] le::receive_cbk: Escalating the error: End of file socket > Client: 4444, connection : role: server, own: /tmp/vsomeip-0, peer: , mem: 0x76c780000fc0, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [4, 5]}, is_sending: false, state: STOPPED
+2026-05-03 18:30:01.627638 hello_world_service [info] emi::endpoint_manager_impl: Stopped thread m_multicast 76c7913b06c0, tid 228722
+2026-05-03 18:30:01.627772 hello_world_service [info] emi::stop: Joined thread m_multicast 76c792c93840
+2026-05-03 18:30:01.627813 hello_world_service [info] ac::auxiliary_context: Stopped thread m_auxiliary 76c790baf6c0, tid 228723
+2026-05-03 18:30:01.627908 hello_world_service [info] ac::auxiliary_context: Joined thread m_auxiliary 76c790baf6c0
+2026-05-03 18:30:01.627953 hello_world_service [info] app::start: : io_.run() end for app(hello_world_service, 4444); Join Dispatcher threads for app(hello_world_service, 4444)
+2026-05-03 18:30:01.627959 hello_world_service [info] Stopped thread 4444_io 1, application 'hello_world_service', id 76c78bfff6c0, tid 228724
+2026-05-03 18:30:01.627992 hello_world_service [info] Join IO threads for app(hello_world_service, 4444)
+2026-05-03 18:30:01.628035 hello_world_service [info] Stopped thread 4444_io00, application 'hello_world_service', id 76c792c93840, tid 228719
