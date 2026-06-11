@@ -1,0 +1,90 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // 这是新的 attach 配置
+            "name": "Attach FusionViewer (run.sh)",
+            "type": "python",
+            "request": "attach",
+
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+
+            // remoteRoot / localRoot 都指向你的工程目录
+            "pathMappings": [
+                {
+                    "localRoot": "/home/faw/codepath/tools/FusionViewerV2",
+                    "remoteRoot": "/home/faw/codepath/tools/FusionViewerV2"
+                }
+            ],
+
+            "justMyCode": false
+        },
+        {
+            "name": "Debug FusionViewer main.py",
+            "type": "python",
+            "request": "launch",
+
+            "program": "/home/faw/codepath/tools/FusionViewerV2/main.py",
+
+            "cwd": "/home/faw/codepath/tools/FusionViewerV2",
+
+            "env": {
+                "LD_LIBRARY_PATH": "/home/faw/codepath/tools/FusionViewerV2/lib:/home/faw/codepath/tools/FusionViewerV2/Plugins/PACK_J3/j3_unpack/libs:${env:LD_LIBRARY_PATH}",
+                "XDG_RUNTIME_DIR": "/tmp/runtime-${env:USER}"
+            },
+
+            "args": [],
+
+            "console": "integratedTerminal",
+
+            "justMyCode": false
+
+        },
+        {
+            "name": "(gdb) Debug Parser",
+            "type": "cppdbg",
+            "request": "launch",
+
+            "program": "/home/faw/codepath/tools/parse_bag_yiqi_src/src/beginner_tutorials/build/devel/lib/beginner_tutorials/parser",
+            "args": [
+                "-p",
+                "-f",
+                "/home/faw/codepath/bag/old_bag/InterceptData-20251125_154128_540--20251125_154201_056.bag"
+            ],
+
+            "cwd": "/home/faw/codepath/tools/parse_bag_yiqi_src",
+
+            "environment": [
+                { "name": "ROS_VERSION", "value": "1" },
+                { "name": "ROS_PYTHON_VERSION", "value": "3" },
+                { "name": "ROS_PACKAGE_PATH", "value": "/opt/ros/noetic/share" },
+                { "name": "ROS_ETC_DIR", "value": "/opt/ros/noetic/etc/ros" },
+                { "name": "ROS_MASTER_URI", "value": "http://localhost:11311" },
+                { "name": "ROS_ROOT", "value": "/opt/ros/noetic/share/ros" },
+                { "name": "ROS_DISTRO", "value": "noetic" },
+
+                { "name": "CMAKE_PREFIX_PATH", "value": "/opt/ros/noetic" },
+                { "name": "LD_LIBRARY_PATH", "value": "/opt/ros/noetic/lib" },
+                { "name": "PYTHONPATH", "value": "/opt/ros/noetic/lib/python3/dist-packages" },
+
+                {
+                    "name": "PATH",
+                    "value": "/opt/ros/noetic/bin:${env:PATH}"
+                }
+            ],
+
+            "externalConsole": false,
+            "MIMode": "gdb",
+
+            "setupCommands": [
+                {
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

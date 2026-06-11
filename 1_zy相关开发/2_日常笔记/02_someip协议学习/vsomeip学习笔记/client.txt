@@ -1,0 +1,49 @@
+2026-05-03 18:29:56.613170 hello_world_client [info] Using configuration file: "../helloworld-local.json".
+2026-05-03 18:29:56.613275 hello_world_client [info] Parsed vsomeip configuration in 0ms
+2026-05-03 18:29:56.613299 hello_world_client [info] Configuration module loaded.
+2026-05-03 18:29:56.613312 hello_world_client [info] Security disabled!
+2026-05-03 18:29:56.613323 hello_world_client [info] Initializing vsomeip (3.7.2) application "hello_world_client".
+2026-05-03 18:29:56.613333 hello_world_client [info] Instantiating routing manager [Proxy].
+2026-05-03 18:29:56.613421 hello_world_client [info] vsomeip tracing not enabled. vsomeip service discovery tracing not enabled.
+2026-05-03 18:29:56.613440 hello_world_client [info] Application(hello_world_client, 5555) is initialized (11, 100).
+2026-05-03 18:29:56.613470 hello_world_client [info] app::init: End of init, application "hello_world_client" (5555)
+2026-05-03 18:29:56.613575 hello_world_client [info] Starting vsomeip application "hello_world_client" (5555) using 2 threads I/O nice 0
+2026-05-03 18:29:56.613786 hello_world_client [info] rcsm::change_state_unlocked: Client 0xffff, state ST_DEREGISTERED -> ST_REGISTERING
+2026-05-03 18:29:56.613934 hello_world_client [info] Client [5555] is connecting to [0000] at /tmp/vsomeip-0 endpoint > 0x5afacf32bd20
+2026-05-03 18:29:56.614093 hello_world_client [info] Started thread 5555_m_dispatch, application 'hello_world_client', id 757a181b26c0, tid 228983
+2026-05-03 18:29:56.614135 hello_world_client [info] le::set_state_unlocked: change state: INIT -> CONNECTING, Client: 0000, connection : role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5afacf328b80, send_queue: 81, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [0, 5]}, is_sending: false, state: INIT
+2026-05-03 18:29:56.614341 hello_world_client [info] Started thread 5555_io00, application 'hello_world_client', id 757a19190840, tid 228982
+2026-05-03 18:29:56.614380 hello_world_client [info] le::set_state_unlocked: change state: CONNECTING -> CONNECTED, Client: 0000, connection : role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5afacf328b80, send_queue: 81, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [0, 5]}, is_sending: false, state: CONNECTING
+2026-05-03 18:29:56.614491 hello_world_client [info] Started thread 5555_io01, application 'hello_world_client', id 757a179b16c0, tid 228984
+2026-05-03 18:29:56.614714 hello_world_client [info] Creating local server endpoint for client 0x5555 with transport type UDS.
+2026-05-03 18:29:56.614838 hello_world_client [info] Listening @ /tmp/vsomeip-5555
+2026-05-03 18:29:56.614901 hello_world_client [info] rmc::on_client_assign_ack: Client 0x5555 (hello_world_client) successfully connected to routing via UDS ~> registering...
+2026-05-03 18:29:56.614915 hello_world_client [info] rmc::register_application: Client 0x5555 Registering to routing manager @ vsomeip-0
+2026-05-03 18:29:56.614926 hello_world_client [info] rcsm::registered: Former client id: 0xffff, new 0x5555
+2026-05-03 18:29:56.614934 hello_world_client [info] rcsm::change_state_unlocked: Client 0x5555, state ST_REGISTERING -> ST_REGISTERED
+2026-05-03 18:29:56.614945 hello_world_client [info] Application/Client 5555 (hello_world_client) is registered.
+2026-05-03 18:29:56.625647 hello_world_client [info] ON_AVAILABLE(5555): [1111.2222:0.0]
+Sending: World
+2026-05-03 18:29:56.625801 hello_world_client [info] emb::find_or_create_local_client: self 0x5555, client 0x4444
+2026-05-03 18:29:56.625907 hello_world_client [info] Client [5555] is connecting to [4444] at /tmp/vsomeip-4444 endpoint > 0x757a10001b30
+2026-05-03 18:29:56.625937 hello_world_client [info] le::set_state_unlocked: change state: INIT -> CONNECTING, Client: 4444, connection : role: client, own: , peer: /tmp/vsomeip-4444, mem: 0x757a10001710, send_queue: 49, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [0, 5]}, is_sending: false, state: INIT
+2026-05-03 18:29:56.626040 hello_world_client [info] le::set_state_unlocked: change state: CONNECTING -> CONNECTED, Client: 4444, connection : role: client, own: , peer: /tmp/vsomeip-4444, mem: 0x757a10001710, send_queue: 85, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [0, 5]}, is_sending: false, state: CONNECTING
+Received: Hello World
+2026-05-03 18:29:56.626613 hello_world_client [info] app::stop: Stopping vsomeip application "hello_world_client" (5555).
+2026-05-03 18:29:56.626676 hello_world_client [info] Stopped thread 5555_m_dispatch, application 'hello_world_client', id 757a181b26c0, tid 228983
+2026-05-03 18:29:56.626689 hello_world_client [info] emb::operator(): Start endpoints flush for client 0x5555
+2026-05-03 18:29:56.626735 hello_world_client [info] emb::flush_local_endpoint_queues: Finished endpoints flush for client 0x5555
+2026-05-03 18:29:56.626744 hello_world_client [info] rcsm::change_state_unlocked: Client 0x5555, state ST_REGISTERED -> ST_DEREGISTERED
+2026-05-03 18:29:56.626757 hello_world_client [info] laui::close: Closing the acceptor: /tmp/vsomeip-5555, mem: 0x5afacf32a3f0
+2026-05-03 18:29:56.626790 hello_world_client [info] lsui::stop: role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5afacf328b80
+2026-05-03 18:29:56.626804 hello_world_client [info] le::set_state_unlocked: change state: CONNECTED -> STOPPED, Client: 0000, connection : role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5afacf328b80, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [3, 5]}, is_sending: false, state: CONNECTED
+2026-05-03 18:29:56.626815 hello_world_client [info] emb::clear_local_endpoints: self 0x5555
+2026-05-03 18:29:56.626822 hello_world_client [info] lsui::stop: role: client, own: , peer: /tmp/vsomeip-4444, mem: 0x757a10001710
+2026-05-03 18:29:56.626806 hello_world_client [warning] le::receive_cbk: Escalating the error: Operation canceled socket > Client: 0000, connection : role: client, own: , peer: /tmp/vsomeip-0, mem: 0x5afacf328b80, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [3, 5]}, is_sending: false, state: STOPPED
+2026-05-03 18:29:56.626833 hello_world_client [info] le::set_state_unlocked: change state: CONNECTED -> STOPPED, Client: 4444, connection : role: client, own: , peer: /tmp/vsomeip-4444, mem: 0x757a10001710, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [2, 5]}, is_sending: false, state: CONNECTED
+2026-05-03 18:29:56.626870 hello_world_client [warning] le::receive_cbk: Escalating the error: Operation canceled socket > Client: 4444, connection : role: client, own: , peer: /tmp/vsomeip-4444, mem: 0x757a10001710, send_queue: 0, receive_buffer: {mem_size: 128, first_used: 0, last_used: 0, shrink: [2, 5]}, is_sending: false, state: STOPPED
+2026-05-03 18:29:56.626890 hello_world_client [info] ON_UNAVAILABLE(5555): [1111.2222:0.0]
+2026-05-03 18:29:56.626907 hello_world_client [info] app::start: : io_.run() end for app(hello_world_client, 5555); Join Dispatcher threads for app(hello_world_client, 5555)
+2026-05-03 18:29:56.626911 hello_world_client [info] Stopped thread 5555_io 1, application 'hello_world_client', id 757a179b16c0, tid 228984
+2026-05-03 18:29:56.626923 hello_world_client [info] Join IO threads for app(hello_world_client, 5555)
+2026-05-03 18:29:56.626949 hello_world_client [info] Stopped thread 5555_io00, application 'hello_world_client', id 757a19190840, tid 228982

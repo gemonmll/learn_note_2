@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "start_carto",
+            "type": "shell",
+            "command": "bash -c 'source /opt/ros/noetic/setup.bash' ",
+        },
+        {
+            "label": "bash1",
+            "type": "shell",
+            "command": "bash -c 'source /opt/ros/noetic/setup.bash ' ",
+        },
+        {
+          "label": "source_ros2_env",
+          "type": "shell",
+          "dependsOn": [
+            "start_carto",
+            "delay_3s"
+          ],
+          "dependsOrder": "sequence",
+          "command": "echo ROS env ready"
+        }
+    ]
+  }
+  

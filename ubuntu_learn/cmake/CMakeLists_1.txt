@@ -1,0 +1,123 @@
+# 设置二进制名字
+set(BIN_NAME2 ADAS_Replay_Tool)
+
+
+set(ara-com_DIR ${BUILD_SYSROOT}/usr/lib/cmake/ara-com/)
+set(ara-exec_DIR ${BUILD_SYSROOT}/usr/lib/cmake/ara-exec/)
+set(ara-log_DIR ${BUILD_SYSROOT}/usr/lib/cmake/ara-log)
+
+
+# 添加源文件
+aux_source_directory(./ DIR_MAIN)
+SET (ALL_SRCS_2
+
+        )
+message(STATUS "DIR_MAIN ${DIR_MAIN}")
+message(STATUS "ALL_SRCS_2: ${ALL_SRCS_2}")
+
+#递归源文件
+file(GLOB_RECURSE ALL_SRCS_3
+    CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/generated/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/zltoolkit/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+)
+#message(STATUS "ALL_SRCS_3: ${ALL_SRCS_3}")
+
+#递归header
+# set(zltoolkit_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zltoolkit)
+# file(GLOB ALL_DIRS LIST_DIRECTORIES true "${zltoolkit_DIR}/*")
+# foreach(dir ${ALL_DIRS})
+#     if(IS_DIRECTORY ${dir})
+#         include_directories(${dir})
+#     endif()
+# endforeach()
+# message(STATUS "zltoolkit_DIR: ${zltoolkit_DIR}")
+
+
+
+# zltoolkit 编译
+include(CheckStructHasMember)
+include(CheckSymbolExists)
+list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+check_struct_has_member("struct mmsghdr" msg_hdr sys/socket.h HAVE_MMSG_HDR)
+check_symbol_exists(sendmmsg sys/socket.h HAVE_SENDMMSG_API)
+check_symbol_exists(recvmmsg sys/socket.h HAVE_RECVMMSG_API)
+
+if(HAVE_MMSG_HDR)
+    add_definitions(-DHAVE_MMSG_HDR)
+endif()
+if(HAVE_SENDMMSG_API)
+    add_definitions(-DHAVE_SENDMMSG_API)
+endif()
+if(HAVE_RECVMMSG_API)
+    add_definitions(-DHAVE_RECVMMSG_API)
+endif()
+
+if(DEFINED SOCKET_DEFAULT_BUF_SIZE)
+    if (SOCKET_DEFAULT_BUF_SIZE EQUAL 0)
+        message(STATUS "Socket default buffer size is not set, use the kernel default value")
+    else()
+        message(STATUS "Socket default buffer size is set to ${SOCKET_DEFAULT_BUF_SIZE}")
+    endif ()
+    add_definitions(-DSOCKET_DEFAULT_BUF_SIZE=${SOCKET_DEFAULT_BUF_SIZE})
+endif()
+
+set(zltoolkit_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zltoolkit)
+include_directories(${zltoolkit_DIR})
+
+
+# 排除某目录
+#list(FILTER SRCS EXCLUDE REGEX ".*/middleware/.*")
+
+
+# add_executable(${BIN_NAME2} ./main.cpp)
+add_executable(${BIN_NAME2} ${ALL_SRCS_3})
+if (${TARGET_ARCH} MATCHES "aarch64")
+    find_library(MY_IPC_LIBRARY NAMES AdIpc PATHS ${PROJECT_SOURCE_DIR}/middleware/lib_aos NO_DEFAULT_PATH)
+    find_library(MY_FRAMEWORK_LIBRARY NAMES AdFrameWork PATHS ${PROJECT_SOURCE_DIR}/middleware/lib_aos NO_DEFAULT_PATH)
+    find_library(MY_BASE_LIBRARY NAMES AdBase PATHS ${PROJECT_SOURCE_DIR}/middleware/lib_aos NO_DEFAULT_PATH)
+    find_library(MY_LOG_LIBRARY NAMES AdLog PATHS ${PROJECT_SOURCE_DIR}/middleware/lib_aos NO_DEFAULT_PATH)
+else()
+    find_library(MY_IPC_LIBRARY NAMES AdIpc PATHS ${PROJECT_SOURCE_DIR}/middleware/lib_linux NO_DEFAULT_PATH)
+    find_library(MY_FRAMEWORK_LIBRARY NAMES AdFrameWork PATHS ${PROJECT_SOURCE_DIR}/middleware/lib_linux NO_DEFAULT_PATH)
+    find_library(MY_BASE_LIBRARY NAMES AdBase PATHS ${PROJECT_SOURCE_DIR}/middleware/lib_linux NO_DEFAULT_PATH)
+    find_library(MY_LOG_LIBRARY NAMES AdLog PATHS ${PROJECT_SOURCE_DIR}/middleware/lib_linux NO_DEFAULT_PATH)
+endif()
+
+add_definitions(-DFAW_AD_LINUX)
+#添加头文件
+target_include_directories(${BIN_NAME2}
+        PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/src
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/../../middleware/include
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/signal
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/generated/includes
+	${ara-com_INCLUDE_DIRS}
+        ${ara-exec_INCLUDE_DIRS}
+        ${ara-log_INCLUDE_DIRS}
+        ${BUILD_SYSROOT}/usr/include/
+        )
+# 链接动态库
+target_link_libraries(${BIN_NAME2}
+        PUBLIC
+        pthread
+        
+        ${MY_IPC_LIBRARY}
+        ${MY_FRAMEWORK_LIBRARY}
+        ${MY_BASE_LIBRARY}
+        ${MY_LOG_LIBRARY}
+        ${BUILD_SYSROOT}/usr/lib/libara_exec.so;
+        ${BUILD_SYSROOT}/usr/lib/libara_com.so;
+        ${BUILD_SYSROOT}/usr/lib/liblogging.so;
+        ${BUILD_SYSROOT}/usr/lib/libJsonParser.so
+        ${BUILD_SYSROOT}/usr/lib/libara_core.so;
+        ${BUILD_SYSROOT}/usr/lib/libE2EXf_CM.so
+        ${BUILD_SYSROOT}/usr/lib/libvrtf_vcc.so
+	${ara-log_LIBRARIES}
+)
+
+#add_subdirectory(src)
+
+

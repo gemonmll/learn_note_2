@@ -1,0 +1,368 @@
+/*@!Encoding:936*/
+/*
+  ADAS ABS_1 / YAW_1 generator - generic E2E CAPL, no #define version
+
+  Why no #define:
+    Some CANoe/CANalyzer CAPL contexts report:
+      "preprocessor command must be inside a section"
+    when #define is placed at file top level.
+    This version removes #define and uses normal variables/literals instead.
+
+  Put this file in:
+    CANoe Simulation Setup -> Network Node / CAPL Program
+  or:
+    CANalyzer Measurement Setup -> Transmit Branch -> CAPL Program
+
+  Do NOT place it in Test Module / Test Unit / Analyze-only block.
+
+  Generic E2E:
+    checksum = CRC8(poly=0x1D, init=0x00, xorout=0x00)
+    CRC input = CAN_ID little-endian + payload[startByte ... startByte+validLen-1]
+    checksum byte itself is not included
+    livecounter = 0..14 wrap
+*/
+
+variables
+{
+  msTimer tAdasTx;
+
+  /* DBC message types. Database must be attached to this CAPL node/channel. */
+  message ABS_1 txAbs1;
+  message YAW_1 txYaw1;
+
+  byte abs1Payload[32];
+  byte yaw1Payload[8];
+
+  int abs1LiveCounter;
+  int yaw1LiveCounter;
+
+  double abs1SpeedKmh;
+  double yawAccXG;
+  double yawAccYG;
+  double yawRateDps;
+}
+
+/* -------------------- Generic helpers -------------------- */
+
+void Payload_Clear(byte payload[], int payloadLen)
+{
+  int i;
+
+  for (i = 0; i < payloadLen; i++)
+  {
+    payload[i] = 0x00;
+  }
+}
+
+long Signal_PhysicalToRaw(double physicalValue, double factorValue, double offsetValue, long minRaw, long maxRaw)
+{
+  double rawDouble;
+  long rawValue;
+
+  rawDouble = (physicalValue - offsetValue) / factorValue;
+
+  if (rawDouble >= 0.0)
+  {
+    rawValue = (long)(rawDouble + 0.5);
+  }
+  else
+  {
+    rawValue = (long)(rawDouble - 0.5);
+  }
+
+  if (rawValue < minRaw)
+  {
+    rawValue = minRaw;
+  }
+
+  if (rawValue > maxRaw)
+  {
+    rawValue = maxRaw;
+  }
+
+  return rawValue;
+}
+
+/* Intel / little-endian signal packer for DBC @1+ signals */
+void Signal_SetIntelRaw(byte payload[], int startBit, int bitLen, long rawValue)
+{
+  int i;
+  int bitPos;
+  int byteIndex;
+  int bitIndex;
+
+  for (i = 0; i < bitLen; i++)
+  {
+    bitPos = startBit + i;
+    byteIndex = bitPos / 8;
+    bitIndex = bitPos % 8;
+
+    if (((rawValue >> i) & 0x01) != 0)
+    {
+      payload[byteIndex] = payload[byteIndex] | (1 << bitIndex);
+    }
+    else
+    {
+      payload[byteIndex] = payload[byteIndex] & (0xFF ^ (1 << bitIndex));
+    }
+  }
+}
+
+/* counterNibbleShift: 0 for low nibble, 4 for high nibble */
+void E2E_SetCounterNibble(byte payload[], int counterByte, int counterNibbleShift, int counterValue)
+{
+  byte maskValue;
+  byte insertValue;
+
+  maskValue = (0x0F << counterNibbleShift) & 0xFF;
+  insertValue = ((counterValue & 0x0F) << counterNibbleShift) & 0xFF;
+
+  payload[counterByte] = (payload[counterByte] & (0xFF ^ maskValue)) | insertValue;
+}
+
+int E2E_NextCounter(int counterValue, int counterMax)
+{
+  counterValue++;
+
+  if (counterValue > counterMax)
+  {
+    counterValue = 0;
+  }
+
+  return counterValue;
+}
+
+/* -------------------- Generic CRC/checksum logic -------------------- */
+
+byte E2E_Crc8Update(byte crcValue, byte dataByte)
+{
+  int i;
+
+  crcValue = crcValue ^ dataByte;
+
+  for (i = 0; i < 8; i++)
+  {
+    if ((crcValue & 0x80) != 0)
+    {
+      crcValue = ((crcValue << 1) ^ 0x1D) & 0xFF;
+    }
+    else
+    {
+      crcValue = (crcValue << 1) & 0xFF;
+    }
+  }
+
+  return crcValue;
+}
+
+/*
+  Decoupled checksum function.
+
+  canId:
+    ABS_1 = 0x00C0
+    YAW_1 = 0x0124
+
+  crcStartByte / crcValidLen:
+    ABS_1: start=1, len=31 -> data[1..31]
+    YAW_1: start=1, len=7  -> data[1..7]
+*/
+byte E2E_CalcChecksum(word canId, byte payload[], int crcStartByte, int crcValidLen)
+{
+  byte crcValue;
+  int i;
+  int lastByte;
+
+  crcValue = 0x00;
+
+  /* CAN ID little-endian */
+  crcValue = E2E_Crc8Update(crcValue, canId & 0xFF);
+  crcValue = E2E_Crc8Update(crcValue, (canId >> 8) & 0xFF);
+
+  lastByte = crcStartByte + crcValidLen;
+
+  for (i = crcStartByte; i < lastByte; i++)
+  {
+    crcValue = E2E_Crc8Update(crcValue, payload[i]);
+  }
+
+  return crcValue;
+}
+
+/* -------------------- ABS_1 payload builder -------------------- */
+
+void ABS1_BuildPayload()
+{
+  long rawSpeed;
+  long rawPressureZeroBar;
+
+  Payload_Clear(abs1Payload, 32);
+
+  rawSpeed = Signal_PhysicalToRaw(abs1SpeedKmh, 0.01, 0.0, 0, 0x7FFF);
+
+  /* WheelSpeed_FL/FR/RL/RR */
+  Signal_SetIntelRaw(abs1Payload, 8, 15, rawSpeed);
+  Signal_SetIntelRaw(abs1Payload, 24, 15, rawSpeed);
+  Signal_SetIntelRaw(abs1Payload, 40, 15, rawSpeed);
+  Signal_SetIntelRaw(abs1Payload, 56, 15, rawSpeed);
+
+  /* VehicleSpeed */
+  Signal_SetIntelRaw(abs1Payload, 120, 15, rawSpeed);
+
+  /*
+    EstimatedWheelPressure_*:
+    physical = raw * 0.03125 - 50
+    0 bar -> raw = 1600 = 0x0640
+  */
+  rawPressureZeroBar = Signal_PhysicalToRaw(0.0, 0.03125, -50.0, 0, 0x3FFF);
+
+  Signal_SetIntelRaw(abs1Payload, 168, 14, rawPressureZeroBar);
+  Signal_SetIntelRaw(abs1Payload, 184, 14, rawPressureZeroBar);
+  Signal_SetIntelRaw(abs1Payload, 200, 14, rawPressureZeroBar);
+  Signal_SetIntelRaw(abs1Payload, 216, 14, rawPressureZeroBar);
+
+  /* LiveCounter_ABS_1: byte31 high nibble */
+  E2E_SetCounterNibble(abs1Payload, 31, 4, abs1LiveCounter);
+
+  /* ABS_1 checksum: CAN ID 0x00C0, payload[1..31] */
+  abs1Payload[0] = E2E_CalcChecksum(0x00C0, abs1Payload, 1, 31);
+}
+
+void ABS1_CopyToMessage()
+{
+  int i;
+
+  txAbs1.dlc = 13;
+  txAbs1.FDF = 1;
+  txAbs1.BRS = 0;
+
+  /*
+    If your CANoe version requires explicit CAN FD flag and supports FDF, uncomment:
+      txAbs1.FDF = 1;
+      txAbs1.BRS = 0;
+    Some versions use EDL instead of FDF:
+      txAbs1.EDL = 1;
+  */
+
+  for (i = 0; i < 32; i++)
+  {
+    txAbs1.byte(i) = abs1Payload[i];
+  }
+}
+
+/* -------------------- YAW_1 payload builder -------------------- */
+
+void YAW1_BuildPayload()
+{
+  long rawAccX;
+  long rawAccY;
+  long rawYawRate;
+
+  Payload_Clear(yaw1Payload, 8);
+
+  rawAccX = Signal_PhysicalToRaw(yawAccXG, 0.001, -2.0, 0, 0x0FFF);
+  rawAccY = Signal_PhysicalToRaw(yawAccYG, 0.001, -2.0, 0, 0x0FFF);
+  rawYawRate = Signal_PhysicalToRaw(yawRateDps, 0.01, -180.0, 0, 0xFFFF);
+
+  Signal_SetIntelRaw(yaw1Payload, 8, 12, rawAccX);
+  Signal_SetIntelRaw(yaw1Payload, 20, 12, rawAccY);
+  Signal_SetIntelRaw(yaw1Payload, 32, 16, rawYawRate);
+
+  /*
+    Status bits from your trace:
+      LatSensorSt = 1
+      LgtSensorSt = 1
+      YRSCalibrateSt_ACU = 1
+      YRSSt_ACU = 1
+  */
+  Signal_SetIntelRaw(yaw1Payload, 48, 2, 1);
+  Signal_SetIntelRaw(yaw1Payload, 50, 2, 1);
+  Signal_SetIntelRaw(yaw1Payload, 52, 1, 1);
+  Signal_SetIntelRaw(yaw1Payload, 53, 2, 1);
+
+  /* LiveCounter_YAW_1: byte7 high nibble */
+  E2E_SetCounterNibble(yaw1Payload, 7, 4, yaw1LiveCounter);
+
+  /* YAW_1 checksum: CAN ID 0x0124, payload[1..7] */
+  yaw1Payload[0] = E2E_CalcChecksum(0x0124, yaw1Payload, 1, 7);
+}
+
+void YAW1_CopyToMessage()
+{
+  int i;
+
+  txYaw1.dlc = 8;
+  txYaw1.FDF = 1;
+  txYaw1.BRS = 0;
+  /*
+    If your CANoe version requires explicit CAN FD flag and supports FDF, uncomment:
+      txYaw1.FDF = 1;
+      txYaw1.BRS = 0;
+    Some versions use EDL instead of FDF:
+      txYaw1.EDL = 1;
+  */
+
+  for (i = 0; i < 8; i++)
+  {
+    txYaw1.byte(i) = yaw1Payload[i];
+  }
+}
+
+/* -------------------- Send flow -------------------- */
+
+void BuildAndSendAdasFrames()
+{
+  ABS1_BuildPayload();
+  ABS1_CopyToMessage();
+
+  YAW1_BuildPayload();
+  YAW1_CopyToMessage();
+
+  output(txAbs1);
+  output(txYaw1);
+
+  abs1LiveCounter = E2E_NextCounter(abs1LiveCounter, 14);
+  yaw1LiveCounter = E2E_NextCounter(yaw1LiveCounter, 14);
+}
+
+on start
+{
+  abs1SpeedKmh = 100.0;
+
+  yawAccXG = -0.001;
+  yawAccYG = -0.002;
+  yawRateDps = 0.020;
+
+  abs1LiveCounter = 0;
+  yaw1LiveCounter = 0;
+
+  setTimer(tAdasTx, 10);
+
+  write("ABS_1/YAW_1 generator started. ABS_1 speed = %.2f km/h", abs1SpeedKmh);
+}
+
+on timer tAdasTx
+{
+  BuildAndSendAdasFrames();
+
+  setTimer(tAdasTx, 10);
+}
+
+on key 's'
+{
+  abs1SpeedKmh = abs1SpeedKmh - 80.0;
+
+  if (abs1SpeedKmh < 0.0)
+  {
+    abs1SpeedKmh = 0.0;
+  }
+
+  write("ABS_1 speed reduced by 80 km/h, current speed = %.2f km/h", abs1SpeedKmh);
+}
+
+on key 'r'
+{
+  abs1SpeedKmh = 100.0;
+
+  write("ABS_1 speed reset to %.2f km/h", abs1SpeedKmh);
+}
+
