@@ -100,6 +100,7 @@ ecu状态理解、理解概念 action list \  rules
 > ![alt text](image-34.png)
 > ecuc  硬件配置 多核配置
 > ![alt text](image-35.png)
+> 
 > ### RTE
 > 中转站，对上链接swc，对下对接通信栈，存储栈，OS，CDD
 > ![alt text](image-36.png)
